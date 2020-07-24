@@ -41,6 +41,7 @@ data.info() #tecnical summary
 
 """
 
+
 def gaussian(x, mu, sig):
     return 1./(np.sqrt(2.*np.pi)*sig)*np.exp(-np.power((x - mu)/sig, 2.)/2)
 
@@ -54,13 +55,37 @@ plt.xlim(-5, 5);
 plt.legend();
 plt.show();
 
+relieved_i09 = []; # list of indexes of patients whose average pain got better after the intervention treatment
+worsen_i09 = []; # list of indexes of patients whose pain got worse after the intervention treatment
+missing_i09 = []; # list of indexs of patients whose data on this measure is missing
 c = 0;
 for i in range(155):
     if (data.at[i, 'TreatmentName'] == 'Intervention'):
-        baseline = data.at[i, 'fssq42'];
-        week9 = data.at[i, 'fssq43'];
-        if (week9 > baseline):
-            c = c + 1
-print(c);
+    # bpi5: Please rate your pain by circling the one number that best describes your pain on the average.
+        baseline = data.at[i, 'bpi52'];
+        week9 = data.at[i, 'bpi53'];
+        print(baseline, " ", week9);
+        if (baseline <= week9):
+            worsen_i09.append(i);
+        elif (baseline > week9):
+            relieved_i09.append(i);
+        else:
+            missing_i09.append(i)
 
+print(relieved_i09);
+print(worsen_i09);
+print(missing_i09);
 
+x1 = [];
+x2 = [];
+x3 = [];
+for i in relieved_i09:
+    x1.append(data.loc[i, 'veg0'])
+    x2.append(data.loc[i, 'veg9'])
+    x3.append(data.loc[i, 'nutr4new4'] - data.loc[i, 'nutr4new2'])
+print(x1)
+print(x2)
+#plt.hist(x1, color = 'b', bins = 20)
+plt.hist(x3, bins = 6)
+plt.gca().set(title='Frequency Histogram of Change in Vegetables serving', ylabel='Frequency')
+plt.show();
